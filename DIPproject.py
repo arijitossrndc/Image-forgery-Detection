@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from skimage.segmentation import mark_boundaries
 import scipy.spatial.distance
 import os
+import keyboard
 
 
 class Features:
@@ -84,17 +85,33 @@ def drawClonedRegions(image, matchedClusters, segments):
                 for row2, col2 in zip(rows2, cols2):
                     image[row2, col2, 2] = 0 #Making Blue Channel 0 so as to see the color difference
         print('\n')
-    cv2.imshow('Cloning Detection Result', (image))
-    path='C:/Users/User/Desktop/DIP_Final_Project/output'
-    cv2.imwrite(os.path.join(path , 'copyLenna-forged.png'), (image))
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+
+    if matchedClusters:
+        print("image is tampered")
+    else:
+        print("image is original")
+
+    while True:
+
+        cv2.imshow('Cloning Detection Result', (image))
+        cv2.waitKey(5000)
+        if keyboard.is_pressed('escape'):
+            cv2.destroyAllWindows()
+            break
+    outputpath = os.path.abspath(os.getcwd()) + "\\" + "output"
+    outputimage = imgname + "-forged" + "." + imgextension
+    cv2.imwrite(os.path.join(outputpath, outputimage), (image))
 
 #Main
-img = imageResize(cv2.imread('C:/Users/User/Desktop/DIP_Final_Project/images/copyLenna.png'))
+
+
+filename = input("Enter the name of image u want to check--->")
+imgname,imgextension = filename.split('.')
+path_image = os.path.abspath(os.getcwd()) + "\\" + "images" + "\\" + filename
+img = imageResize(cv2.imread(path_image))
 
 bgrImage = img[:, :, ::-1]  # convert to bgr
-segmentedData = slic(image=bgrImage, n_segments=100, sigma=5)
+segmentedData = slic(image=bgrImage, n_segments=117, sigma=1, start_label=0)
 
 #plotting
 figure = plt.figure("SLIC Components")
